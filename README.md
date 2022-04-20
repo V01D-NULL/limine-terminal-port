@@ -1,45 +1,35 @@
-# Stivale2 Bare Bones
+# This is a port of the runtime terminal for the limine bootloader
 
-This repository will show you how to set up a simple 64-bit x86_64 Long Mode higher half stivale2 kernel using Limine.
+**NOTE: This terminal port should work with any bootloader as long as you add support for it's respective protocol (see below)**
 
-This project can be built using the host compiler on most Linux distros on x86_64, but it's recommended you set up an x86_64-elf [cross compiler](https://wiki.osdev.org/GCC_Cross-Compiler).
+# Supported protocols
 
-It is also recommended to cross reference the contents of this repository with [the Stivale Bare Bones](https://wiki.osdev.org/Stivale_Bare_Bones) OSDev wiki page.
+   > Note: Adding support for a different boot protocol is as simple as changing two parameters in `term_init` and editing the bump allocator in `gterm.c` (The logic should more or less stay the same)
 
-## Where to go from here
+- stivale2
 
-You may be asking yourself: "what now?".  So here's a list of things you may want to do to get started working
-on your new kernel:
+Normally this terminal is provided by the bootloader and can (and should) be used by the kernel during early boot.
 
-* Load an [IDT](https://wiki.osdev.org/Interrupt_Descriptor_Table) so that exceptions and interrupts can be handled.
-* Write a physical memory allocator, a good starting point is a bitmap allocator.
-* Write a virtual memory manager that can map, remap and unmap pages.
-* Begin parsing ACPI tables, the most important one is the MADT since it contains information about the APIC.
-* Start up the other CPUs. stivale2 provides a facility to make this less painful.
-* Set up an interrupt controller such as the APIC.
-* Configure a timer such as the Local APIC timer, the PIT, or the HPET.
-* Implement a scheduler to schedule threads in order make multitasking possible.
-* Design a virtual file system (VFS) and implement it. The traditional UNIX VFS works and saves headaches when porting software, but you can make your own thing too.
-* Implement a simple virtual file system like a memory-only tmpfs to avoid crippling the design of your VFS too much while implementing it alongside real storage filesystems.
-* Decide how to abstract devices. UNIX likes usually go for a `/dev` virtual filesystem containing device nodes and use `ioctl()` alongside standard FS calls to do operations on them.
-* Get a userland going by loading executables from your VFS and running them in ring 3. Set up a way to perform system calls.
-* Write a PCI driver.
-* Add support for a storage medium, the easiest and most common ones are AHCI and NVMe.
+It's an extremely fast terminal with a complete "terminfo"/vt100 implementation. There really isn't a reason not to use this terminal.
 
+The only issue here is that it's merely an *early boot console*, and it's located in conventional, lower-half memory.
 
-At this point you should have decided what kind of interface your OS is going to provide to programs running on it, a common design that a lot of hobby operating systems use is POSIX (which derives from the UNIX design), which has both pros and cons:
+Once you get you userspace you'll find it very annoying to try and map memory *around* the terminal considering a terminal shouldn't be in lower-half memory in the first place!
 
-Pros:
+That's why I decided to port it, you should be able to include it into your kernel and use it just fine. 
 
-* Easier to port existing software that already runs on UNIX like operating systems like Linux.
-* The basic parts of POSIX are fairly easy to implement.
-* Pretty safe and sound design which has stood the test of time for over 40 years.
+Please let me know if any issues arise, thanks!
 
-Cons:
+# Features / limitations
 
-* Restricts you to use an already existing design.
-* POSIX may get complex and has a lot of legacy cruft that software might rely on.
+For the sake of simplicity (and my time) this port is a stripped down version of the original, meaning it does not support fancy things like font scaling, image rendering, etc.
 
-Another point to consider is that a lot of software tends to depend on Linux or glibc specific features, but a portable C library like [mlibc](https://github.com/managarm/mlibc) can be used instead of implementing your own, as it provides good compatibility with POSIX/Linux software.
+I may or may not add support later on, PR's are welcome if you're eager to have it.
 
-Other options, instead of implementing POSIX in your kernel, is to add a POSIX compatibility layer on top of your native design (with the large downside of complicating the design of your OS).
+# Usage
+
+First off, make sure to convert your font.bin into an object file and link it with the kernel. The command is `ld -r -b binary font.bin -o font.o`
+
+To initialize the terminal, include `term.h` and pass the stivale2 framebuffer and memory map structures as arguments.
+
+(Pagefaults did occur with the limine's pagetables when the external font was memcpy'd, however this is not an early boot console. You should be using the bootloader provided terminal until you setup your own pagetables)
