@@ -36,3 +36,5 @@ To initialize the terminal, include `term.h` and pass the stivale2 framebuffer a
 In order to make this fully higherhalf you will have to replace bump() with your kernels heap allocator. bump() is only used as a PoC to get you up and running.**
 
 (Pagefaults did occur with the limine's pagetables when the external font was memcpy'd, however this is not an early boot console. You should be using the bootloader provided terminal until you setup your own pagetables)
+
+Credits: https://github.com/limine-bootloader/limine
