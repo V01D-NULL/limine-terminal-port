@@ -1,9 +1,1 @@
-limine
-ovmf-x64
-kernel/stivale2.h
-*.elf
-*.iso
-*.hdd
-*.o
-*.d
-.vscode/
+.vscode

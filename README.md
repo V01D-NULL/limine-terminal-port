@@ -1,40 +1,108 @@
-# This is a port of the runtime terminal for the limine bootloader
+# Port of the Limine bootloader terminal
 
-**NOTE: This terminal port should work with any bootloader as long as you add support for it's respective protocol (see below)**
+Normally this terminal is provided by the Limine bootloader and can (and should) be used by the kernel during early boot.
 
-# Supported protocols
-
-   > Note: Adding support for a different boot protocol is as simple as changing two parameters in `term_init` and editing the bump allocator in `gterm.c` (The logic should more or less stay the same)
-
-- stivale2
-
-Normally this terminal is provided by the bootloader and can (and should) be used by the kernel during early boot.
-
-It's an extremely fast terminal with a complete "terminfo"/vt100 implementation. There really isn't a reason not to use this terminal.
+It's an extremely fast with a complete "terminfo"/vt100 implementation. There really isn't a reason not to use this terminal.
 
 The only issue here is that it's merely an *early boot console*, and it's located in conventional, lower-half memory.
 
-Once you get you userspace you'll find it very annoying to try and map memory *around* the terminal considering a terminal shouldn't be in lower-half memory in the first place!
+Once you get to userspace you'll find it very annoying to try and map memory *around* the it considering that terminal shouldn't be in lower-half memory in the first place!
 
-That's why I decided to port it, you should be able to include it into your kernel and use it just fine. 
+That's what this port is for.
+You should be able to include it into your kernel and use it just fine.
 
-Please let me know if any issues arise, thanks!
+Please let us know if any issues arise, thank you!
 
-# Features / limitations
+## Features
+* Almost every feature that Limine terminal supports
 
-For the sake of simplicity (and my time) this port is a stripped down version of the original, meaning it does not support fancy things like font scaling, image rendering, etc.
+## Limitations
+* Currently background loading is unsupported (broken)
+* Text mode should work but is untested
 
-I may or may not add support later on, PR's are welcome if you're eager to have it.
+## Usage
 
-# Usage
+1. First off, choose a font from fonts/ folder or create your own and load it in your os (link it directly to the kernel, load it from filesystem, as a module, etc).
 
-First off, make sure to convert your font.bin into an object file and link it with the kernel. The command is `ld -r -b binary font.bin -o font.o`
+2. To initialize the terminal, include `term.hpp` and provide some basic functions declared in the header file.
 
-To initialize the terminal, include `term.h` and pass the stivale2 framebuffer and memory map structures as arguments.
+3. Create new term_t object and run init() or use constructor (If you set bios to false, you will not be able to use text mode)
 
-**Note: The datastructures used by the terminal are initialized by a simple bump allocator (see: gterm.c) which takes memory from the mmap provided by the bootloader.
-In order to make this fully higherhalf you will have to replace bump() with your kernels heap allocator. bump() is only used as a PoC to get you up and running.**
+4. To use vbe mode with framebuffer, run `term_object->vbe(arguments);` (Example shown below)
 
-(Pagefaults did occur with the limine's pagetables when the external font was memcpy'd, however this is not an early boot console. You should be using the bootloader provided terminal until you setup your own pagetables)
+5. To use text mode, run `term_object->textmode();`
+
+## Example
+```c
+#include <term.hpp>
+
+void *alloc_mem(size_t size)
+{
+   // Allocate memory
+}
+void free_mem(void *ptr, size_t size)
+{
+   // Free memory
+}
+void *memcpy(void *dest, const void *src, size_t len)
+{
+   // Memcpy
+}
+void *memset(void *dest, int ch, size_t n)
+{
+   // Memset
+}
+
+framebuffer_t frm
+{
+   address, // Framebuffer address
+   width, // Framebuffer width
+   height, // Framebuffer height
+   pitch // Framebuffer pitch
+};
+
+font_t font
+{
+   font_address, // Address of font file
+   8, // Font width
+   16, // Font height
+   1, // Character spacing
+   0, // Font scaling x
+   0 // Font scaling y
+};
+
+style_t style
+{
+   DEFAULT_ANSI_COLOURS, // Default terminal palette
+   DEFAULT_ANSI_BRIGHT_COLOURS, // Default terminal bright palette
+   0xA0000000, // Background colour
+   0xFFFFFF, // Foreground colour
+   64, // Terminal margin
+   0 // Terminal margin gradient
+};
+
+// Background not working
+image_t *image = new image(backgroundAddress, size);
+background_t back
+{
+   image,
+   STRETCHED, // STRETCHED, CENTERED or TILED
+   0x00000000 // Terminal backdrop colour
+};
+
+callback_t callback = [](uint64_t, uint64_t, uint64_t, uint64_t, uint64_t) { handleCallback(); };
+
+// VBE mode
+
+term_t *term = new term_t(callback, isBootedInBiosMode);
+term->vbe(frm, font, style); // Also pass `back` as argument for background
+term->print("Hello, World!");
+
+// Text mode
+
+term_t *term = new term_t(callback, isBootedInBiosMode);
+term->textmode();
+term->print("Hello, World!");
+```
 
 Credits: https://github.com/limine-bootloader/limine
