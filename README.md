@@ -15,6 +15,7 @@ Please let us know if any issues arise, thank you!
 
 ## Features
 * Almost every feature that Limine terminal supports
+* Multiple terminals support in VBE mode
 
 ## Limitations
 * Currently background loading is unsupported (broken)
@@ -22,7 +23,7 @@ Please let us know if any issues arise, thank you!
 
 ## Usage
 
-1. First off, choose a font from fonts/ folder or create your own and load it in your os (link it directly to the kernel, load it from filesystem, as a module, etc).
+1. First off, choose a font from fonts/ folder or create your own and load it in your os (link it directly to the kernel, load it from filesystem, as a module, etc)
 
 2. To initialize the terminal, include `term.hpp` and provide some basic functions declared in the header file.
 
@@ -91,16 +92,14 @@ background_t back
 };
 
 callback_t callback = [](uint64_t, uint64_t, uint64_t, uint64_t, uint64_t) { handleCallback(); };
+term_t *term = new term_t(callback, isBootedInBiosMode);
 
 // VBE mode
-
-term_t *term = new term_t(callback, isBootedInBiosMode);
+// In VBE mode you can create more terminals for different framebuffers
 term->vbe(frm, font, style); // Also pass `back` as argument for background
 term->print("Hello, World!");
 
 // Text mode
-
-term_t *term = new term_t(callback, isBootedInBiosMode);
 term->textmode();
 term->print("Hello, World!");
 ```
