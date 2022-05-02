@@ -27,15 +27,15 @@ Please let us know if any issues arise, thank you!
 
 2. To initialize the terminal, include `term.hpp` and provide some basic functions declared in the header file.
 
-3. Create new term_t object and run init() or use constructor (If you set bios to false, you will not be able to use text mode)
+3. Create new term_t and run `term_init(term, arguments);` (If you set bios to false, you will not be able to use text mode)
 
-4. To use vbe mode with framebuffer, run `term_object->vbe(arguments);` (Example shown below)
+4. To use vbe mode with framebuffer, run `term_vbe(term, arguments);` (Example shown below)
 
-5. To use text mode, run `term_object->textmode();`
+5. To use text mode, run `term_textmode(term);`
 
 ## Example
 ```c
-#include <term.hpp>
+#include <term.h>
 
 void *alloc_mem(size_t size)
 {
@@ -54,16 +54,19 @@ void *memset(void *dest, int ch, size_t n)
    // Memset
 }
 
-framebuffer_t frm
+void callback(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)
 {
+   handleCallback();
+}
+
+struct framebuffer_t frm = {
    address, // Framebuffer address
    width, // Framebuffer width
    height, // Framebuffer height
    pitch // Framebuffer pitch
 };
 
-font_t font
-{
+struct font_t font = {
    font_address, // Address of font file
    8, // Font width
    16, // Font height
@@ -72,8 +75,7 @@ font_t font
    0 // Font scaling y
 };
 
-style_t style
-{
+struct style_t style = {
    DEFAULT_ANSI_COLOURS, // Default terminal palette
    DEFAULT_ANSI_BRIGHT_COLOURS, // Default terminal bright palette
    0xA0000000, // Background colour
@@ -82,26 +84,26 @@ style_t style
    0 // Terminal margin gradient
 };
 
-// Background not working
-image_t *image = new image(backgroundAddress, size);
-background_t back
-{
-   image,
+// Background currently not working so set image to NULL
+struct image_t image;
+image_open(&image, bmpBackgroundAddress, size);
+struct background_t back = {
+   &image, // Set this to NULL to disable background
    STRETCHED, // STRETCHED, CENTERED or TILED
    0x00000000 // Terminal backdrop colour
 };
 
-callback_t callback = [](uint64_t, uint64_t, uint64_t, uint64_t, uint64_t) { handleCallback(); };
-term_t *term = new term_t(callback, isBootedInBiosMode);
+struct term_t term;
+term_init(&term, callback, bootedInBiosMode);
 
 // VBE mode
 // In VBE mode you can create more terminals for different framebuffers
-term->vbe(frm, font, style); // Also pass `back` as argument for background
-term->print("Hello, World!");
+term_vbe(&term, frm, font, style, back);
+term_print(&term, "Hello, World!");
 
 // Text mode
-term->textmode();
-term->print("Hello, World!");
+term_textmode(&term);
+term_print(&term, "Hello, World!");
 ```
 
 Credits: https://github.com/limine-bootloader/limine
