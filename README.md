@@ -14,18 +14,18 @@ You should be able to include it into your kernel and use it just fine.
 Please let us know if any issues arise, thank you!
 
 ## Features
-* Almost every feature that Limine terminal supports
-* Multiple terminals support in VBE mode
+* Almost every feature that Limine terminal has is supported
+* Multiple terminals support
 
 ## Limitations
-* Currently background loading is unsupported (broken)
-* Text mode should work but is untested
+* Currently only background loading is unsupported (broken)
+* Text mode should work but it's untested
 
 ## Usage
 
 1. First off, choose a font from fonts/ folder or create your own and load it in your os (link it directly to the kernel, load it from filesystem, as a module, etc)
 
-2. To initialize the terminal, include `term.hpp` and provide some basic functions declared in the header file.
+2. To initialize the terminal, include `term.h` and provide some basic functions declared in the header file (Example shown below)
 
 3. Create new term_t and run `term_init(term, arguments);` (If you set bios to false, you will not be able to use text mode)
 
@@ -37,7 +37,7 @@ Note: There also are C++ wrappers for term_t and image_t structures (cppterm_t a
 
 ## Example
 ```c
-#include <term.h>
+#include "term.h"
 
 void *alloc_mem(size_t size)
 {
@@ -108,4 +108,4 @@ term_textmode(&term);
 term_print(&term, "Hello, World!");
 ```
 
-Credits: https://github.com/limine-bootloader/limine
+Based on: https://github.com/limine-bootloader/limine
