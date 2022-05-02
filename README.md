@@ -33,6 +33,8 @@ Please let us know if any issues arise, thank you!
 
 5. To use text mode, run `term_textmode(term);`
 
+Note: There also are C++ wrappers for term_t and image_t structures (cppterm_t and cppimage_t) in `source/cpp/` directory
+
 ## Example
 ```c
 #include <term.h>
