@@ -2,17 +2,6 @@
 #include "gterm.h"
 #include "term.h"
 
-// static
-// {
-//     void sgr();
-//     void dec_private_parse(uint8_t c);
-//     void linux_private_parse();
-//     void mode_toggle(uint8_t c);
-//     void control_sequence_parse(uint8_t c);
-//     void escape_parse(uint8_t c);
-//     uint8_t dec_special_to_cp437(uint8_t c);
-// };
-
 void term_init(struct term_t *term, callback_t callback, bool bios)
 {
     if (term->initialised == true) return;
@@ -20,6 +9,7 @@ void term_init(struct term_t *term, callback_t callback, bool bios)
     term->callback = callback;
     term->bios = bios;
     term->term_backend = NOT_READY;
+    term->arg = (uint64_t)term;
 
     term->gterm = alloc_mem(sizeof(struct gterm_t));
     term->tterm = alloc_mem(sizeof(struct tterm_t));
