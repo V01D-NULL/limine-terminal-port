@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TERM_H
+#define TERM_H
 
 #include "image.h"
 
@@ -195,3 +196,5 @@ void term_full_refresh(struct term_t *term);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // TERM_H

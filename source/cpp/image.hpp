@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IMAGE_HPP
+#define IMAGE_HPP
 
 #include "../image.h"
 
@@ -21,3 +22,5 @@ struct cppimage_t : image_t
         image_close(this);
     }
 };
+
+#endif // IMAGE_HPP

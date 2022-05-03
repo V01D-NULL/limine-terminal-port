@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GTERM_H
+#define GTERM_H
 
 #include "term.h"
 
@@ -120,3 +121,5 @@ void gterm_full_refresh(struct gterm_t *gterm);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // GTERM_H

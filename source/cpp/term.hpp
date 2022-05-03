@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TERM_HPP
+#define TERM_HPP
 
 #include "../term.h"
 #include "image.hpp"
@@ -146,3 +147,5 @@ struct cppterm_t : term_t
         term_full_refresh(this);
     }
 };
+
+#endif // TERM_HPP

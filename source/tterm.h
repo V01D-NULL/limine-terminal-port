@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TTERM_H
+#define TTERM_H
 
 #include "term.h"
 
@@ -63,3 +64,5 @@ void tterm_full_refresh(struct tterm_t *tterm);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // TTERM_H

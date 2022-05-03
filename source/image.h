@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IMAGE_H
+#define IMAGE_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -63,3 +64,5 @@ void image_close(struct image_t *image);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // IMAGE_H
