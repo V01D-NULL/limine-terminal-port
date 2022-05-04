@@ -14,11 +14,10 @@ You should be able to include it into your kernel and use it just fine.
 Please let us know if any issues arise, thank you!
 
 ## Features
-* Almost every feature that Limine terminal has is supported
+* Every feature that Limine terminal has is supported
 * Multiple terminals support
 
 ## Limitations
-* Currently only background loading is unsupported (broken)
 * Text mode should work but it's untested
 
 ## Usage
@@ -86,11 +85,10 @@ struct style_t style = {
    0 // Terminal margin gradient
 };
 
-// Background currently not working so set image to NULL
 struct image_t image;
 image_open(&image, bmpBackgroundAddress, size);
 struct background_t back = {
-   &image, // Set this to NULL to disable background
+   &image, // Background. Set to NULL to disable background
    STRETCHED, // STRETCHED, CENTERED or TILED
    0x00000000 // Terminal backdrop colour
 };

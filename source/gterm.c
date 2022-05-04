@@ -75,6 +75,7 @@ static void plot_px(struct gterm_t *gterm, size_t x, size_t y, uint32_t hex)
     gterm->framebuffer_addr[fb_i] = hex;
 }
 
+__attribute__((no_sanitize("undefined")))
 static uint32_t blend_gradient_from_box(struct gterm_t *gterm, size_t x, size_t y, uint32_t bg_px, uint32_t hex)
 {
     size_t distance, x_distance, y_distance;
@@ -96,9 +97,10 @@ static uint32_t blend_gradient_from_box(struct gterm_t *gterm, size_t x, size_t 
     uint8_t gradient_step = (0xff - A(hex)) / gterm->margin_gradient;
     uint8_t new_alpha = A(hex) + gradient_step * distance;
 
-    return colour_blend(gterm, (hex & 0xffffff) | (new_alpha << 24), bg_px);
+    return colour_blend(gterm, (hex & 0xFFFFFF) | (new_alpha << 24), bg_px);
 }
 
+__attribute__((no_sanitize("undefined")))
 static void genloop(struct gterm_t *gterm, size_t xstart, size_t xend, size_t ystart, size_t yend, uint32_t (*blend)(struct gterm_t *gterm, size_t x, size_t y, uint32_t orig))
 {
     uint8_t *img = gterm->background->img;
@@ -583,7 +585,7 @@ bool gterm_init(struct gterm_t *gterm, struct term_t *term, struct framebuffer_t
         gterm->margin = 0;
         gterm->margin_gradient = 0;
     }
-g    else if (gterm->default_bg == DEFAULT_BACKGROUND) gterm->default_bg = 0x68000000;
+    else if (gterm->default_bg == DEFAULT_BACKGROUND) gterm->default_bg = 0x68000000;
 
     if (style.margin != (uint16_t)(-1)) gterm->margin = style.margin;
     if (style.margin_gradient != (uint16_t)(-1)) gterm->margin_gradient = style.margin_gradient;
