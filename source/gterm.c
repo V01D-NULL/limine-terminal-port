@@ -567,8 +567,8 @@ bool gterm_init(struct gterm_t *gterm, struct term_t *term, struct framebuffer_t
     gterm->margin = 64;
     gterm->margin_gradient = 4;
 
-    memcpy(gterm->ansi_colours, style.ansi_colours, 8);
-    memcpy(gterm->ansi_bright_colours, style.ansi_bright_colours, 8);
+    memcpy(gterm->ansi_colours, style.ansi_colours, 32);
+    memcpy(gterm->ansi_bright_colours, style.ansi_bright_colours, 32);
 
     gterm->default_bg = style.background;
     gterm->default_fg = style.foreground;
