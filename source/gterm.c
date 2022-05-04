@@ -571,9 +571,9 @@ bool gterm_init(struct gterm_t *gterm, struct term_t *term, struct framebuffer_t
     memcpy(gterm->ansi_bright_colours, style.ansi_bright_colours, 32);
 
     gterm->default_bg = style.background;
-    gterm->default_fg = style.foreground;
+    gterm->default_fg = style.foreground & 0xFFFFFF;
 
-    gterm->context.text_fg = style.foreground;
+    gterm->context.text_fg = gterm->default_fg;
     gterm->context.text_bg = 0xFFFFFFFF;
 
     gterm->background = back.background;
@@ -583,7 +583,7 @@ bool gterm_init(struct gterm_t *gterm, struct term_t *term, struct framebuffer_t
         gterm->margin = 0;
         gterm->margin_gradient = 0;
     }
-    else if (gterm->default_bg == 0) gterm->default_bg = 0x68000000;
+g    else if (gterm->default_bg == DEFAULT_BACKGROUND) gterm->default_bg = 0x68000000;
 
     if (style.margin != (uint16_t)(-1)) gterm->margin = style.margin;
     if (style.margin_gradient != (uint16_t)(-1)) gterm->margin_gradient = style.margin_gradient;
