@@ -59,7 +59,9 @@ void term_vbe(struct term_t *term, struct framebuffer_t frm, struct font_t font,
 
     if (!gterm_init(term->gterm, term, frm, font, style, back) && term->bios)
     {
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
         term_textmode(term);
+#endif
         return;
     }
 
@@ -67,6 +69,7 @@ void term_vbe(struct term_t *term, struct framebuffer_t frm, struct font_t font,
     term->term_backend = VBE;
 }
 
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
 void term_textmode(struct term_t *term)
 {
     if (term->initialised == false) return;
@@ -77,6 +80,7 @@ void term_textmode(struct term_t *term)
 
     term->term_backend = TEXTMODE;
 }
+#endif
 
 void term_notready(struct term_t *term)
 {
@@ -263,7 +267,7 @@ void term_write(struct term_t *term, uint64_t buf, uint64_t count)
     }
 
     bool native = false;
-#if defined(__x86_64__)
+#if defined(__x86_64__) || defined(_M_X64) || defined(__aarch64__) || defined(_M_ARM64)
     native = true;
 #endif
 
@@ -274,7 +278,7 @@ void term_write(struct term_t *term, uint64_t buf, uint64_t count)
     }
     else
     {
-#if defined(__i386__)
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86)
         while (count != 0)
         {
             uint64_t chunk;
@@ -881,28 +885,36 @@ void term_raw_putchar(struct term_t *term, uint8_t c)
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_putchar(term->gterm, c);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_putchar(term->tterm, c);
+#endif
 }
 void term_clear(struct term_t *term, bool move)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_clear(term->gterm, move);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_clear(term->tterm, move);
+#endif
 }
 void term_enable_cursor(struct term_t *term)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_enable_cursor(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_enable_cursor(term->tterm);
+#endif
 }
 bool term_disable_cursor(struct term_t *term)
 {
     if (term->initialised == false) return false;
 
     if (term->term_backend == VBE && term->gterm) return gterm_disable_cursor(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) return tterm_disable_cursor(term->tterm);
+#endif
     return false;
 }
 void term_set_cursor_pos(struct term_t *term, size_t x, size_t y)
@@ -910,63 +922,81 @@ void term_set_cursor_pos(struct term_t *term, size_t x, size_t y)
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_set_cursor_pos(term->gterm, x, y);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_set_cursor_pos(term->tterm, x, y);
+#endif
 }
 void term_get_cursor_pos(struct term_t *term, size_t *x, size_t *y)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_get_cursor_pos(term->gterm, x, y);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_get_cursor_pos(term->tterm, x, y);
+#endif
 }
 void term_set_text_fg(struct term_t *term, size_t fg)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_set_text_fg(term->gterm, fg);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_set_text_fg(term->tterm, fg);
+#endif
 }
 void term_set_text_bg(struct term_t *term, size_t bg)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_set_text_bg(term->gterm, bg);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_set_text_bg(term->tterm, bg);
+#endif
 }
 void term_set_text_fg_bright(struct term_t *term, size_t fg)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_set_text_fg_bright(term->gterm, fg);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_set_text_fg_bright(term->tterm, fg);
+#endif
 }
 void term_set_text_bg_bright(struct term_t *term, size_t bg)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_set_text_bg_bright(term->gterm, bg);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_set_text_bg_bright(term->tterm, bg);
+#endif
 }
 void term_set_text_fg_default(struct term_t *term)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_set_text_fg_default(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_set_text_fg_default(term->tterm);
+#endif
 }
 void term_set_text_bg_default(struct term_t *term)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_set_text_bg_default(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_set_text_bg_default(term->tterm);
+#endif
 }
 bool term_scroll_disable(struct term_t *term)
 {
     if (term->initialised == false) return false;
 
     if (term->term_backend == VBE && term->gterm) return gterm_scroll_disable(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) return tterm_scroll_disable(term->tterm);
+#endif
     return false;
 }
 void term_scroll_enable(struct term_t *term)
@@ -974,42 +1004,54 @@ void term_scroll_enable(struct term_t *term)
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_scroll_enable(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_scroll_enable(term->tterm);
+#endif
 }
 void term_move_character(struct term_t *term, size_t new_x, size_t new_y, size_t old_x, size_t old_y)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_move_character(term->gterm, new_x, new_y, old_x, old_y);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_move_character(term->tterm, new_x, new_y, old_x, old_y);
+#endif
 }
 void term_scroll(struct term_t *term)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_scroll(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_scroll(term->tterm);
+#endif
 }
 void term_revscroll(struct term_t *term)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_revscroll(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_revscroll(term->tterm);
+#endif
 }
 void term_swap_palette(struct term_t *term)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_swap_palette(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_swap_palette(term->tterm);
+#endif
 }
 void term_save_state(struct term_t *term)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_save_state(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_save_state(term->tterm);
+#endif
 
     term->context.saved_state_bold = term->context.bold;
     term->context.saved_state_reverse_video = term->context.reverse_video;
@@ -1026,7 +1068,9 @@ void term_restore_state(struct term_t *term)
     term->context.current_primary = term->context.saved_state_current_primary;
 
     if (term->term_backend == VBE && term->gterm) gterm_restore_state(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_restore_state(term->tterm);
+#endif
 }
 
 void term_double_buffer_flush(struct term_t *term)
@@ -1034,7 +1078,9 @@ void term_double_buffer_flush(struct term_t *term)
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_double_buffer_flush(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_double_buffer_flush(term->tterm);
+#endif
 }
 
 uint64_t term_context_size(struct term_t *term)
@@ -1044,7 +1090,9 @@ uint64_t term_context_size(struct term_t *term)
     uint64_t ret = sizeof(struct term_context);
 
     if (term->term_backend == VBE && term->gterm) ret += gterm_context_size(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) ret += tterm_context_size(term->tterm);
+#endif
 
     return ret;
 }
@@ -1056,7 +1104,9 @@ void term_context_save(struct term_t *term, uint64_t ptr)
     ptr += sizeof(struct term_context);
 
     if (term->term_backend == VBE && term->gterm) gterm_context_save(term->gterm, ptr);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_context_save(term->tterm, ptr);
+#endif
 }
 void term_context_restore(struct term_t *term, uint64_t ptr)
 {
@@ -1066,12 +1116,16 @@ void term_context_restore(struct term_t *term, uint64_t ptr)
     ptr += sizeof(struct term_context);
 
     if (term->term_backend == VBE && term->gterm) gterm_context_restore(term->gterm, ptr);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_context_restore(term->tterm, ptr);
+#endif
 }
 void term_full_refresh(struct term_t *term)
 {
     if (term->initialised == false) return;
 
     if (term->term_backend == VBE && term->gterm) gterm_full_refresh(term->gterm);
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     else if (term->term_backend == TEXTMODE && term->tterm) tterm_full_refresh(term->tterm);
+#endif
 }
