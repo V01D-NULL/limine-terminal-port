@@ -133,13 +133,17 @@ struct term_context
 };
 
 struct gterm_t;
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
 struct tterm_t;
+#endif
 
 struct term_t
 {
     struct term_context context;
     struct gterm_t *gterm;
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     struct tterm_t *tterm;
+#endif
 
     bool bios;
     bool initialised;

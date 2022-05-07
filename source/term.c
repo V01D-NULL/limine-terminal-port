@@ -12,7 +12,9 @@ void term_init(struct term_t *term, callback_t callback, bool bios)
     term->arg = (uint64_t)term;
 
     term->gterm = alloc_mem(sizeof(struct gterm_t));
+#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
     term->tterm = alloc_mem(sizeof(struct tterm_t));
+#endif
 
     term->initialised = true;
 }
