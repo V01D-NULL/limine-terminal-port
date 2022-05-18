@@ -1,4 +1,4 @@
-#if defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86) || defined(__x86_64__) || defined(_M_X64)
+#if defined(__i386__) || defined(__x86_64__)
 
 #ifndef TTERM_H
 #define TTERM_H
