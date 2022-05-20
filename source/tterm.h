@@ -1,3 +1,5 @@
+#if defined(__i386__) || defined(__x86_64__)
+
 #ifndef TTERM_H
 #define TTERM_H
 
@@ -66,3 +68,5 @@ void tterm_full_refresh(struct tterm_t *tterm);
 #endif
 
 #endif // TTERM_H
+
+#endif

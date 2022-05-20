@@ -63,7 +63,9 @@ enum term_type
 {
     NOT_READY,
     VBE,
+#if defined(__i386__) || defined(__x86_64__)
     TEXTMODE
+#endif
 };
 
 struct framebuffer_t
@@ -131,13 +133,17 @@ struct term_context
 };
 
 struct gterm_t;
+#if defined(__i386__) || defined(__x86_64__)
 struct tterm_t;
+#endif
 
 struct term_t
 {
     struct term_context context;
     struct gterm_t *gterm;
+#if defined(__i386__) || defined(__x86_64__)
     struct tterm_t *tterm;
+#endif
 
     bool bios;
     bool initialised;
@@ -156,7 +162,9 @@ void term_init(struct term_t *term, callback_t callback, bool bios);
 void term_deinit(struct term_t *term);
 void term_reinit(struct term_t *term);
 void term_vbe(struct term_t *term, struct framebuffer_t frm, struct font_t font, struct style_t style, struct background_t back);
+#if defined(__i386__) || defined(__x86_64__)
 void term_textmode(struct term_t *term);
+#endif
 void term_notready(struct term_t *term);
 void term_putchar(struct term_t *term, uint8_t c);
 void term_write(struct term_t *term, uint64_t buf, uint64_t count);

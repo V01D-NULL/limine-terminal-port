@@ -1,3 +1,5 @@
+#if defined(__i386__) || defined(__x86_64__)
+
 #include "tterm.h"
 #include "term.h"
 
@@ -270,3 +272,5 @@ void tterm_full_refresh(struct tterm_t *tterm)
         tterm->old_cursor_offset = tterm->context.cursor_offset;
     }
 }
+
+#endif

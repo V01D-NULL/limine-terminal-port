@@ -23,10 +23,12 @@ struct cppterm_t : term_t
     {
         term_vbe(this, frm, font, style, back);
     }
+#if defined(__i386__) || defined(__x86_64__)
     void textmode()
     {
         term_textmode(this);
     }
+#endif
     void notready()
     {
         term_notready(this);
