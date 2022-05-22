@@ -70,15 +70,15 @@ enum term_type
 
 struct framebuffer_t
 {
-    uint64_t address;
-    uint16_t width;
-    uint16_t height;
-    uint16_t pitch;
+    uintptr_t address;
+    uint64_t width;
+    uint64_t height;
+    uint64_t pitch;
 };
 
 struct font_t
 {
-    uint64_t address;
+    uintptr_t address;
     uint8_t width;
     uint8_t height;
     uint8_t spacing;
