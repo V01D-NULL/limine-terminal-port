@@ -13,7 +13,7 @@ void term_init(struct term_t *term, callback_t callback, bool bios)
 
     term->gterm = alloc_mem(sizeof(struct gterm_t));
 #if defined(__i386__) || defined(__x86_64__)
-    term->tterm = alloc_mem(sizeof(struct tterm_t));
+    if (bios == true) term->tterm = alloc_mem(sizeof(struct tterm_t));
 #endif
 
     term->initialised = true;
@@ -74,7 +74,7 @@ void term_vbe(struct term_t *term, struct framebuffer_t frm, struct font_t font,
 #if defined(__i386__) || defined(__x86_64__)
 void term_textmode(struct term_t *term)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false || !term->tterm) return;
 
     term_deinit(term);
     tterm_init(term->tterm, term);
@@ -239,7 +239,7 @@ void term_putchar(struct term_t *term, uint8_t c)
     term_raw_putchar(term, c);
 }
 
-#if defined(__i386__)
+#if !defined(__x86_64__) && !defined(__aarch64__)
 #define TERM_XFER_CHUNK 8192
 
 static uint8_t xfer_buf[TERM_XFER_CHUNK];
@@ -280,7 +280,7 @@ void term_write(struct term_t *term, uint64_t buf, uint64_t count)
     }
     else
     {
-#if defined(__i386__)
+#if !defined(__x86_64__) && !defined(__aarch64__)
         while (count != 0)
         {
             uint64_t chunk;
