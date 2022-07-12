@@ -41,6 +41,7 @@ Note: There also are C++ wrappers for term_t and image_t structures (cppterm_t a
 void *alloc_mem(size_t size)
 {
    // Allocate memory
+   // memset() memory to zero
 }
 void free_mem(void *ptr, size_t size)
 {
