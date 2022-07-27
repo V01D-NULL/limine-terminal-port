@@ -17,9 +17,6 @@ Please let us know if any issues arise, thank you!
 * Every feature that Limine terminal has is supported
 * Multiple terminals support
 
-## Limitations
-* Text mode should work but it's untested
-
 ## Usage
 
 1. First off, choose a font from fonts/ folder or create your own and load it in your os (link it directly to the kernel, load it from filesystem, as a module, etc)
