@@ -22,7 +22,7 @@ bool bmp_open_image(struct image_t *image, uint64_t file, uint64_t size)
     memcpy(&header, (uint8_t*)file, sizeof(struct bmp_header));
 
     char signature[2] = {
-        (char)(header.bf_signature),
+        (char)(header.bf_signature & 0xFF),
         (char)(header.bf_signature >> 8)
     };
     if (signature[0] != 'B' || signature[1] != 'M') return false;
@@ -31,15 +31,13 @@ bool bmp_open_image(struct image_t *image, uint64_t file, uint64_t size)
 
     uint32_t bf_size;
     if (header.bf_offset + header.bf_size > size)
-    {
         bf_size = size - header.bf_offset;
-    }
     else bf_size = header.bf_size;
 
     image->img = alloc_mem(bf_size);
     memcpy(image->img, (uint8_t*)(file + header.bf_offset), bf_size);
 
-    image->allocated_size = header.bf_size;
+    image->allocated_size = bf_size;
 
     image->x_size = header.bi_width;
     image->y_size = header.bi_height;
@@ -71,7 +69,8 @@ void image_make_stretched(struct image_t *image, int new_x_size, int new_y_size)
 bool image_open(struct image_t *image, uint64_t file, uint64_t size)
 {
     image->type = TILED;
-    if (bmp_open_image(image, file, size)) return true;
+    if (bmp_open_image(image, file, size))
+        return true;
     return false;
 }
 

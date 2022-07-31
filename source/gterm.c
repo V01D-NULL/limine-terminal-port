@@ -68,7 +68,8 @@ static uint32_t colour_blend(struct gterm_t *gterm, uint32_t fg, uint32_t bg)
 
 static void plot_px(struct gterm_t *gterm, size_t x, size_t y, uint32_t hex)
 {
-    if (x >= gterm->framebuffer.width || y >= gterm->framebuffer.height) return;
+    if (x >= gterm->framebuffer.width || y >= gterm->framebuffer.height)
+        return;
 
     size_t fb_i = x + (gterm->framebuffer.pitch / sizeof(uint32_t)) * y;
 
@@ -82,15 +83,22 @@ static uint32_t blend_gradient_from_box(struct gterm_t *gterm, size_t x, size_t 
     size_t gradient_stop_x = gterm->framebuffer.width - gterm->margin;
     size_t gradient_stop_y = gterm->framebuffer.height - gterm->margin;
 
-    if (x < gterm->margin) x_distance = gterm->margin - x;
-    else x_distance = x - gradient_stop_x;
+    if (x < gterm->margin)
+        x_distance = gterm->margin - x;
+    else
+        x_distance = x - gradient_stop_x;
 
-    if (y < gterm->margin) y_distance = gterm->margin - y;
-    else y_distance = y - gradient_stop_y;
+    if (y < gterm->margin)
+        y_distance = gterm->margin - y;
+    else
+        y_distance = y - gradient_stop_y;
 
-    if (x >= gterm->margin && x < gradient_stop_x) distance = y_distance;
-    else if (y >= gterm->margin && y < gradient_stop_y) distance = x_distance;
-    else distance = sqrt((uint64_t)x_distance * (uint64_t)x_distance + (uint64_t)y_distance * (uint64_t)y_distance);
+    if (x >= gterm->margin && x < gradient_stop_x)
+        distance = y_distance;
+    else if (y >= gterm->margin && y < gradient_stop_y)
+        distance = x_distance;
+    else
+        distance = sqrt((uint64_t)x_distance * (uint64_t)x_distance + (uint64_t)y_distance * (uint64_t)y_distance);
 
     if (distance > gterm->margin_gradient) return bg_px;
 
@@ -120,7 +128,8 @@ static void genloop(struct gterm_t *gterm, size_t xstart, size_t xend, size_t ys
                     uint32_t i = blend(gterm, x, y, img_pixel);
                     gterm->bg_canvas[canvas_off + x] = i;
                     gterm->framebuffer_addr[fb_off + x] = i;
-                    if (image_x++ == img_width) image_x = 0;
+                    if (image_x++ == img_width)
+                        image_x = 0;
                 }
             }
             break;
@@ -212,7 +221,8 @@ static void generate_canvas(struct gterm_t *gterm)
     {
         int64_t margin_no_gradient = (int64_t)gterm->margin - gterm->margin_gradient;
 
-        if (margin_no_gradient < 0) margin_no_gradient = 0;
+        if (margin_no_gradient < 0)
+            margin_no_gradient = 0;
 
         size_t scan_stop_x = gterm->framebuffer.width - margin_no_gradient;
         size_t scan_stop_y = gterm->framebuffer.height - margin_no_gradient;
@@ -250,7 +260,8 @@ static void generate_canvas(struct gterm_t *gterm)
 
 static void plot_char(struct gterm_t *gterm, struct gterm_char *c, size_t x, size_t y)
 {
-    if (x >= gterm->cols || y >= gterm->rows) return;
+    if (x >= gterm->cols || y >= gterm->rows)
+        return;
 
     x = gterm->offset_x + x * gterm->glyph_width;
     y = gterm->offset_y + y * gterm->glyph_height;
@@ -278,7 +289,8 @@ static void plot_char(struct gterm_t *gterm, struct gterm_char *c, size_t x, siz
 
 static void plot_char_fast(struct gterm_t *gterm, struct gterm_char *old, struct gterm_char *c, size_t x, size_t y)
 {
-    if (x >= gterm->cols || y >= gterm->rows) return;
+    if (x >= gterm->cols || y >= gterm->rows)
+        return;
 
     x = gterm->offset_x + x * gterm->glyph_width;
     y = gterm->offset_y + y * gterm->glyph_height;
@@ -294,7 +306,8 @@ static void plot_char_fast(struct gterm_t *gterm, struct gterm_char *old, struct
         {
             bool old_draw = old_glyph[fy * gterm->vga_font_width + fx];
             bool new_draw = new_glyph[fy * gterm->vga_font_width + fx];
-            if (old_draw == new_draw) continue;
+            if (old_draw == new_draw)
+                continue;
 
             for (size_t i = 0; i < gterm->vga_font_scale_x; i++)
             {
@@ -314,7 +327,8 @@ static bool compare_char(struct gterm_char *a, struct gterm_char *b)
 
 static void push_to_queue(struct gterm_t *gterm, struct gterm_char *c, size_t x, size_t y)
 {
-    if (x >= gterm->cols || y >= gterm->rows) return;
+    if (x >= gterm->cols || y >= gterm->rows)
+        return;
 
     size_t i = y * gterm->cols + x;
 
@@ -322,7 +336,8 @@ static void push_to_queue(struct gterm_t *gterm, struct gterm_char *c, size_t x,
 
     if (!q)
     {
-        if (compare_char(&gterm->grid[i], c)) return;
+        if (compare_char(&gterm->grid[i], c))
+            return;
         q = &gterm->queue[gterm->queue_i++];
         q->x = x;
         q->y = y;
@@ -363,9 +378,7 @@ void gterm_revscroll(struct gterm_t *gterm)
     empty.bg = gterm->context.text_bg;
 
     for (size_t i = gterm->term->context.scroll_top_margin * gterm->cols; i < (gterm->term->context.scroll_top_margin + 1) * gterm->cols; i++)
-    {
         push_to_queue(gterm, &empty, i % gterm->cols, i / gterm->cols);
-    }
 }
 
 void gterm_scroll(struct gterm_t *gterm)
@@ -384,9 +397,7 @@ void gterm_scroll(struct gterm_t *gterm)
     empty.fg = gterm->context.text_fg;
     empty.bg = gterm->context.text_bg;
     for (size_t i = (gterm->term->context.scroll_bottom_margin - 1) * gterm->cols; i < gterm->term->context.scroll_bottom_margin * gterm->cols; i++)
-    {
         push_to_queue(gterm, &empty, i % gterm->cols, i / gterm->cols);
-    }
 }
 
 void gterm_clear(struct gterm_t *gterm, bool move)
@@ -396,9 +407,7 @@ void gterm_clear(struct gterm_t *gterm, bool move)
     empty.fg = gterm->context.text_fg;
     empty.bg = gterm->context.text_bg;
     for (size_t i = 0; i < gterm->rows * gterm->cols; i++)
-    {
         push_to_queue(gterm, &empty, i % gterm->cols, i / gterm->cols);
-    }
 
     if (move)
     {
@@ -516,19 +525,16 @@ void gterm_double_buffer_flush(struct gterm_t *gterm)
 
         struct gterm_char *old = &gterm->grid[offset];
         if (q->c.bg == old->bg && q->c.fg == old->fg)
-        {
             plot_char_fast(gterm, old, &q->c, q->x, q->y);
-        }
-        else plot_char(gterm, &q->c, q->x, q->y);
+        else
+            plot_char(gterm, &q->c, q->x, q->y);
 
         gterm->grid[offset] = q->c;
         gterm->map[offset] = NULL;
     }
 
     if ((gterm->old_cursor_x != gterm->context.cursor_x || gterm->old_cursor_y != gterm->context.cursor_y) || gterm->context.cursor_status == false)
-    {
         plot_char(gterm, &gterm->grid[gterm->old_cursor_x + gterm->old_cursor_y * gterm->cols], gterm->old_cursor_x, gterm->old_cursor_y);
-    }
 
     gterm->old_cursor_x = gterm->context.cursor_x;
     gterm->old_cursor_y = gterm->context.cursor_y;
@@ -593,13 +599,9 @@ bool gterm_init(struct gterm_t *gterm, struct term_t *term, struct framebuffer_t
     if (gterm->background != NULL)
     {
         if (back.style == CENTERED)
-        {
             image_make_centered(gterm->background, gterm->framebuffer.width, gterm->framebuffer.height, back.backdrop);
-        }
         else if (back.style == STRETCHED)
-        {
             image_make_stretched(gterm->background, gterm->framebuffer.width, gterm->framebuffer.height);
-        }
     }
 
     gterm->vga_font_width = font.width;
@@ -625,16 +627,20 @@ bool gterm_init(struct gterm_t *gterm, struct term_t *term, struct framebuffer_t
             {
                 size_t offset = i * gterm->vga_font_height * gterm->vga_font_width + y * gterm->vga_font_width + x;
 
-                if ((glyph[y] & (0x80 >> x))) gterm->vga_font_bool[offset] = true;
-                else gterm->vga_font_bool[offset] = false;
+                if ((glyph[y] & (0x80 >> x)))
+                    gterm->vga_font_bool[offset] = true;
+                else
+                    gterm->vga_font_bool[offset] = false;
             }
 
             for (size_t x = 8; x < gterm->vga_font_width; x++)
             {
                 size_t offset = i * gterm->vga_font_height * gterm->vga_font_width + y * gterm->vga_font_width + x;
 
-                if (i >= 0xC0 && i <= 0xDF) gterm->vga_font_bool[offset] = (glyph[y] & 1);
-                else gterm->vga_font_bool[offset] = false;
+                if (i >= 0xC0 && i <= 0xDF)
+                    gterm->vga_font_bool[offset] = (glyph[y] & 1);
+                else
+                    gterm->vga_font_bool[offset] = false;
             }
         }
     }
@@ -725,7 +731,8 @@ void gterm_context_restore(struct gterm_t *gterm, uint64_t ptr)
         plot_char(gterm, &gterm->grid[i], x, y);
     }
 
-    if (gterm->context.cursor_status) draw_cursor(gterm);
+    if (gterm->context.cursor_status)
+        draw_cursor(gterm);
 }
 
 void gterm_full_refresh(struct gterm_t *gterm)
@@ -740,5 +747,6 @@ void gterm_full_refresh(struct gterm_t *gterm)
         plot_char(gterm, &gterm->grid[i], x, y);
     }
 
-    if (gterm->context.cursor_status) draw_cursor(gterm);
+    if (gterm->context.cursor_status)
+        draw_cursor(gterm);
 }

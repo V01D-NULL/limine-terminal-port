@@ -13,10 +13,15 @@ void tterm_init(struct tterm_t *tterm, struct term_t *term)
     tterm->term = term;
     tterm->video_mem = (volatile uint8_t*)0xB8000;
 
-    if (tterm->back_buffer == NULL) tterm->back_buffer = alloc_mem(VD_ROWS * VD_COLS);
-    else memset(tterm->back_buffer, 0, VD_ROWS * VD_COLS);
-    if (tterm->front_buffer == NULL) tterm->front_buffer = alloc_mem(VD_ROWS * VD_COLS);
-    else memset(tterm->front_buffer, 0, VD_ROWS * VD_COLS);
+    if (tterm->back_buffer == NULL)
+        tterm->back_buffer = alloc_mem(VD_ROWS * VD_COLS);
+    else
+        memset(tterm->back_buffer, 0, VD_ROWS * VD_COLS);
+
+    if (tterm->front_buffer == NULL)
+        tterm->front_buffer = alloc_mem(VD_ROWS * VD_COLS);
+    else
+        memset(tterm->front_buffer, 0, VD_ROWS * VD_COLS);
 
     tterm->context.cursor_offset = 0;
     tterm->context.cursor_status = true;
@@ -47,10 +52,9 @@ void tterm_putchar(struct tterm_t *tterm, uint8_t c)
         }
     }
     else if (tterm->context.cursor_offset >= (VIDEO_BOTTOM - 1))
-    {
         tterm->context.cursor_offset -= tterm->context.cursor_offset % VD_COLS;
-    }
-    else tterm->context.cursor_offset += 2;
+    else
+        tterm->context.cursor_offset += 2;
 }
 
 void tterm_clear(struct tterm_t *tterm, bool move)
@@ -60,7 +64,8 @@ void tterm_clear(struct tterm_t *tterm, bool move)
         tterm->back_buffer[i] = ' ';
         tterm->back_buffer[i + 1] = tterm->context.text_palette;
     }
-    if (move) tterm->context.cursor_offset = 0;
+    if (move)
+        tterm->context.cursor_offset = 0;
 }
 
 static void draw_cursor(struct tterm_t *tterm)
@@ -147,16 +152,15 @@ void tterm_scroll_enable(struct tterm_t *tterm)
 
 void tterm_move_character(struct tterm_t *tterm, size_t new_x, size_t new_y, size_t old_x, size_t old_y)
 {
-    if (old_x >= VD_COLS / 2 || old_y >= VD_ROWS || new_x >= VD_COLS / 2 || new_y >= VD_ROWS) return;
+    if (old_x >= VD_COLS / 2 || old_y >= VD_ROWS || new_x >= VD_COLS / 2 || new_y >= VD_ROWS)
+        return;
     tterm->back_buffer[new_y * VD_COLS + new_x * 2] = tterm->back_buffer[old_y * VD_COLS + old_x * 2];
 }
 
 void tterm_scroll(struct tterm_t *tterm)
 {
     for (size_t i = tterm->term->context.scroll_top_margin * VD_COLS; i < (tterm->term->context.scroll_bottom_margin - 1) * VD_COLS; i++)
-    {
         tterm->back_buffer[i] = tterm->back_buffer[i + VD_COLS];
-    }
 
     for (size_t i = (tterm->term->context.scroll_bottom_margin - 1) * VD_COLS; i < tterm->term->context.scroll_bottom_margin * VD_COLS; i += 2)
     {
@@ -170,7 +174,8 @@ void tterm_revscroll(struct tterm_t *tterm)
     for (size_t i = (tterm->term->context.scroll_bottom_margin - 1) * VD_COLS - 2; ; i--)
     {
         tterm->back_buffer[i + VD_COLS] = tterm->back_buffer[i];
-        if (i == tterm->term->context.scroll_top_margin * VD_COLS) break;
+        if (i == tterm->term->context.scroll_top_margin * VD_COLS)
+            break;
     }
 
     for (size_t i = tterm->term->context.scroll_top_margin * VD_COLS; i < (tterm->term->context.scroll_top_margin + 1) * VD_COLS; i += 2)
@@ -199,24 +204,26 @@ void tterm_restore_state(struct tterm_t *tterm)
 
 void tterm_double_buffer_flush(struct tterm_t *tterm)
 {
-    if (tterm->context.cursor_status) draw_cursor(tterm);
+    if (tterm->context.cursor_status)
+        draw_cursor(tterm);
 
     if (tterm->context.cursor_offset != tterm->old_cursor_offset || tterm->context.cursor_status == false)
-    {
         tterm->video_mem[tterm->old_cursor_offset + 1] = tterm->back_buffer[tterm->old_cursor_offset + 1];
-    }
 
     for (size_t i = 0; i < VD_ROWS * VD_COLS; i++)
     {
-        if (tterm->back_buffer[i] == tterm->front_buffer[i]) continue;
+        if (tterm->back_buffer[i] == tterm->front_buffer[i])
+            continue;
 
-        if (tterm->context.cursor_status && i == tterm->context.cursor_offset + 1) continue;
+        if (tterm->context.cursor_status && i == tterm->context.cursor_offset + 1)
+            continue;
 
         tterm->front_buffer[i] = tterm->back_buffer[i];
         tterm->video_mem[i] = tterm->back_buffer[i];
     }
 
-    if (tterm->context.cursor_status) tterm->old_cursor_offset = tterm->context.cursor_offset;
+    if (tterm->context.cursor_status)
+        tterm->old_cursor_offset = tterm->context.cursor_offset;
 }
 
 uint64_t tterm_context_size(struct tterm_t *tterm)
