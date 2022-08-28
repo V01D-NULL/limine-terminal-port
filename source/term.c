@@ -4,7 +4,8 @@
 
 void term_init(struct term_t *term, callback_t callback, bool bios)
 {
-    if (term->initialised == true) return;
+    if (term->initialised == true)
+        return;
 
     term->callback = callback;
     term->bios = bios;
@@ -215,8 +216,10 @@ void term_putchar(struct term_t *term, uint8_t c)
         case '\a':
             if (term->callback)
             {
-                if (term->arg != 0) term->callback(term->arg, TERM_CB_BELL, 0, 0, 0);
-                else term->callback(TERM_CB_BELL, 0, 0, 0, 0);
+                if (term->arg != 0)
+                    term->callback(term->arg, TERM_CB_BELL, 0, 0, 0);
+                else
+                    term->callback(TERM_CB_BELL, 0, 0, 0, 0);
             }
             return;
         case 14:
@@ -232,7 +235,8 @@ void term_putchar(struct term_t *term, uint8_t c)
         for (size_t i = term->cols - 1; ; i--)
         {
             term_move_character(term, i + 1, y, i, y);
-            if (i == x) break;
+            if (i == x)
+                break;
         }
     }
 
@@ -256,7 +260,8 @@ static uint8_t xfer_buf[TERM_XFER_CHUNK];
 
 void term_write(struct term_t *term, uint64_t buf, uint64_t count)
 {
-    if (term->initialised == false || term->term_backend == NOT_READY) return;
+    if (term->initialised == false || term->term_backend == NOT_READY)
+        return;
 
     switch (count)
     {
@@ -285,16 +290,20 @@ void term_write(struct term_t *term, uint64_t buf, uint64_t count)
     if (!term->runtime || native)
     {
         const char *s = (const char*)(buf);
-        for (size_t i = 0; i < count; i++) term_putchar(term, s[i]);
+        for (size_t i = 0; i < count; i++)
+            term_putchar(term, s[i]);
     }
     else
     {
+    // TODO: Is this necessary?
 #if !defined(__x86_64__) && !defined(__aarch64__)
         while (count != 0)
         {
             uint64_t chunk;
-            if (count > TERM_XFER_CHUNK) chunk = TERM_XFER_CHUNK;
-            else chunk = count;
+            if (count > TERM_XFER_CHUNK)
+                chunk = TERM_XFER_CHUNK;
+            else
+                chunk = count;
 
             memcpy(xfer_buf, (void*)(buf), chunk);
 
@@ -313,9 +322,12 @@ void term_write(struct term_t *term, uint64_t buf, uint64_t count)
 
 void term_print(struct term_t *term, const char *str)
 {
-    if (!str) return;
+    if (str == NULL)
+        return;
+
     size_t length = 0;
-    while(str[length]) length++;
+    while(str[length])
+        length++;
 
     term_write(term, (uint64_t)str, length);
 }
@@ -324,7 +336,8 @@ void term_sgr(struct term_t *term)
 {
     size_t i = 0;
 
-    if (!term->context.esc_values_i) goto def;
+    if (!term->context.esc_values_i)
+        goto def;
 
     for (; i < term->context.esc_values_i; i++)
     {
@@ -349,8 +362,10 @@ def:
             term->context.bold = true;
             if (term->context.current_primary != (size_t)(-1))
             {
-                if (!term->context.reverse_video) term_set_text_fg_bright(term, term->context.current_primary);
-                else term_set_text_bg_bright(term, term->context.current_primary);
+                if (!term->context.reverse_video)
+                    term_set_text_fg_bright(term, term->context.current_primary);
+                else
+                    term_set_text_bg_bright(term, term->context.current_primary);
             }
             continue;
         }
@@ -359,8 +374,10 @@ def:
             term->context.bold = false;
             if (term->context.current_primary != (size_t)(-1))
             {
-                if (!term->context.reverse_video) term_set_text_fg(term, term->context.current_primary);
-                else term_set_text_bg(term, term->context.current_primary);
+                if (!term->context.reverse_video)
+                    term_set_text_fg(term, term->context.current_primary);
+                else
+                    term_set_text_bg(term, term->context.current_primary);
             }
             continue;
         }
@@ -369,7 +386,8 @@ def:
             offset = 30;
             term->context.current_primary = term->context.esc_values[i] - offset;
 
-            if (term->context.reverse_video) goto set_bg;
+            if (term->context.reverse_video)
+                goto set_bg;
 set_fg:
             if (term->context.bold && !term->context.reverse_video)
                 term_set_text_fg_bright(term, term->context.esc_values[i] - offset);
@@ -477,8 +495,10 @@ void term_dec_private_parse(struct term_t *term, uint8_t c)
     switch (term->context.esc_values[0])
     {
         case 25:
-            if (set) term_enable_cursor(term);
-            else term_disable_cursor(term);
+            if (set == true)
+                term_enable_cursor(term);
+            else
+                term_disable_cursor(term);
             return;
     }
 
@@ -493,7 +513,8 @@ void term_dec_private_parse(struct term_t *term, uint8_t c)
 
 void term_linux_private_parse(struct term_t *term)
 {
-    if (term->context.esc_values_i == 0) return;
+    if (term->context.esc_values_i == 0)
+        return;
 
     if (term->callback)
     {
@@ -567,7 +588,8 @@ void term_control_sequence_parse(struct term_t *term, uint8_t c)
     {
         term->context.esc_values_i++;
         term->context.rrr = false;
-        if (c == ';') return;
+        if (c == ';')
+            return;
     }
     else if (c == ';')
     {
@@ -756,7 +778,8 @@ void term_control_sequence_parse(struct term_t *term, uint8_t c)
                                 break;
                             }
                         }
-                        if (b == true) break;
+                        if (b == true)
+                            break;
                     }
                     break;
                 }
@@ -772,7 +795,8 @@ void term_control_sequence_parse(struct term_t *term, uint8_t c)
                 term_move_character(term, i + term->context.esc_values[0], y, i, y);
                 term_set_cursor_pos(term, i, y);
                 term_raw_putchar(term, ' ');
-                if (i == x) break;
+                if (i == x)
+                    break;
             }
             term_set_cursor_pos(term, x, y);
             break;
@@ -841,7 +865,8 @@ void term_control_sequence_parse(struct term_t *term, uint8_t c)
             break;
     }
 
-    if (r) term_scroll_enable(term);
+    if (r == true)
+        term_scroll_enable(term);
 
 cleanup:
     term->context.control_sequence = false;
@@ -935,7 +960,8 @@ is_csi:
 
 void term_raw_putchar(struct term_t *term, uint8_t c)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_putchar(term->gterm, c);
@@ -946,7 +972,8 @@ void term_raw_putchar(struct term_t *term, uint8_t c)
 }
 void term_clear(struct term_t *term, bool move)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_clear(term->gterm, move);
@@ -957,7 +984,8 @@ void term_clear(struct term_t *term, bool move)
 }
 void term_enable_cursor(struct term_t *term)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_enable_cursor(term->gterm);
@@ -968,7 +996,8 @@ void term_enable_cursor(struct term_t *term)
 }
 bool term_disable_cursor(struct term_t *term)
 {
-    if (term->initialised == false) return false;
+    if (term->initialised == false)
+        return false;
 
     if (term->term_backend == VBE && term->gterm)
         return gterm_disable_cursor(term->gterm);
@@ -980,7 +1009,8 @@ bool term_disable_cursor(struct term_t *term)
 }
 void term_set_cursor_pos(struct term_t *term, size_t x, size_t y)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_set_cursor_pos(term->gterm, x, y);
@@ -991,7 +1021,8 @@ void term_set_cursor_pos(struct term_t *term, size_t x, size_t y)
 }
 void term_get_cursor_pos(struct term_t *term, size_t *x, size_t *y)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_get_cursor_pos(term->gterm, x, y);
@@ -1002,7 +1033,8 @@ void term_get_cursor_pos(struct term_t *term, size_t *x, size_t *y)
 }
 void term_set_text_fg(struct term_t *term, size_t fg)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_set_text_fg(term->gterm, fg);
@@ -1013,7 +1045,8 @@ void term_set_text_fg(struct term_t *term, size_t fg)
 }
 void term_set_text_bg(struct term_t *term, size_t bg)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_set_text_bg(term->gterm, bg);
@@ -1024,7 +1057,8 @@ void term_set_text_bg(struct term_t *term, size_t bg)
 }
 void term_set_text_fg_bright(struct term_t *term, size_t fg)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_set_text_fg_bright(term->gterm, fg);
@@ -1035,7 +1069,8 @@ void term_set_text_fg_bright(struct term_t *term, size_t fg)
 }
 void term_set_text_bg_bright(struct term_t *term, size_t bg)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_set_text_bg_bright(term->gterm, bg);
@@ -1046,7 +1081,8 @@ void term_set_text_bg_bright(struct term_t *term, size_t bg)
 }
 void term_set_text_fg_default(struct term_t *term)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_set_text_fg_default(term->gterm);
@@ -1057,7 +1093,8 @@ void term_set_text_fg_default(struct term_t *term)
 }
 void term_set_text_bg_default(struct term_t *term)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_set_text_bg_default(term->gterm);
@@ -1068,7 +1105,8 @@ void term_set_text_bg_default(struct term_t *term)
 }
 bool term_scroll_disable(struct term_t *term)
 {
-    if (term->initialised == false) return false;
+    if (term->initialised == false)
+        return false;
 
     if (term->term_backend == VBE && term->gterm)
         return gterm_scroll_disable(term->gterm);
@@ -1080,7 +1118,8 @@ bool term_scroll_disable(struct term_t *term)
 }
 void term_scroll_enable(struct term_t *term)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_scroll_enable(term->gterm);
@@ -1091,7 +1130,8 @@ void term_scroll_enable(struct term_t *term)
 }
 void term_move_character(struct term_t *term, size_t new_x, size_t new_y, size_t old_x, size_t old_y)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_move_character(term->gterm, new_x, new_y, old_x, old_y);
@@ -1102,7 +1142,8 @@ void term_move_character(struct term_t *term, size_t new_x, size_t new_y, size_t
 }
 void term_scroll(struct term_t *term)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_scroll(term->gterm);
@@ -1113,7 +1154,8 @@ void term_scroll(struct term_t *term)
 }
 void term_revscroll(struct term_t *term)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_revscroll(term->gterm);
@@ -1124,7 +1166,8 @@ void term_revscroll(struct term_t *term)
 }
 void term_swap_palette(struct term_t *term)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_swap_palette(term->gterm);
@@ -1135,7 +1178,8 @@ void term_swap_palette(struct term_t *term)
 }
 void term_save_state(struct term_t *term)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_save_state(term->gterm);
@@ -1151,7 +1195,8 @@ void term_save_state(struct term_t *term)
 }
 void term_restore_state(struct term_t *term)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     term->context.bold = term->context.saved_state_bold;
     term->context.reverse_video = term->context.saved_state_reverse_video;
@@ -1168,7 +1213,8 @@ void term_restore_state(struct term_t *term)
 
 void term_double_buffer_flush(struct term_t *term)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     if (term->term_backend == VBE && term->gterm)
         gterm_double_buffer_flush(term->gterm);
@@ -1180,7 +1226,8 @@ void term_double_buffer_flush(struct term_t *term)
 
 uint64_t term_context_size(struct term_t *term)
 {
-    if (term->initialised == false) return 0;
+    if (term->initialised == false)
+        return 0;
 
     uint64_t ret = sizeof(struct term_context);
 
@@ -1195,7 +1242,8 @@ uint64_t term_context_size(struct term_t *term)
 }
 void term_context_save(struct term_t *term, uint64_t ptr)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     memcpy((void*)ptr, &term->context, sizeof(struct term_context));
     ptr += sizeof(struct term_context);
@@ -1209,7 +1257,8 @@ void term_context_save(struct term_t *term, uint64_t ptr)
 }
 void term_context_restore(struct term_t *term, uint64_t ptr)
 {
-    if (term->initialised == false) return;
+    if (term->initialised == false)
+        return;
 
     memcpy(&term->context, (void*)ptr, sizeof(struct term_context));
     ptr += sizeof(struct term_context);

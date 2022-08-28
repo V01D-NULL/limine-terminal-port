@@ -5,7 +5,11 @@
 
 static void outb(uint16_t port, uint8_t val)
 {
-    asm volatile (".att_syntax prefix\n\toutb %0, %1" : : "a"(val), "Nd"(port));
+    asm volatile (
+        ".att_syntax prefix\n\t"
+        "outb %0, %1"
+        :: "a"(val), "Nd"(port)
+    );
 }
 
 void tterm_init(struct tterm_t *tterm, struct term_t *term)

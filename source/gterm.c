@@ -108,8 +108,8 @@ static uint32_t blend_gradient_from_box(struct gterm_t *gterm, size_t x, size_t 
     return colour_blend(gterm, (hex & 0xFFFFFF) | (new_alpha << 24), bg_px);
 }
 
-__attribute__((no_sanitize("undefined")))
-static void genloop(struct gterm_t *gterm, size_t xstart, size_t xend, size_t ystart, size_t yend, uint32_t (*blend)(struct gterm_t *gterm, size_t x, size_t y, uint32_t orig))
+__attribute__((no_sanitize("undefined"), always_inline))
+static inline void genloop(struct gterm_t *gterm, size_t xstart, size_t xend, size_t ystart, size_t yend, uint32_t (*blend)(struct gterm_t *gterm, size_t x, size_t y, uint32_t orig))
 {
     uint8_t *img = gterm->background->img;
     const size_t img_width = gterm->background->img_width, img_height = gterm->background->img_height, img_pitch = gterm->background->pitch, colsize = gterm->background->bpp / 8;
