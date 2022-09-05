@@ -285,11 +285,11 @@ void term_putchar(struct term_t *term, uint8_t c)
     term_raw_putchar(term, c);
 }
 
-#if !defined(__x86_64__) && !defined(__aarch64__)
-#define TERM_XFER_CHUNK 8192
+// #if !defined(__x86_64__) && !defined(__aarch64__)
+// #define TERM_XFER_CHUNK 8192
 
-static uint8_t xfer_buf[TERM_XFER_CHUNK];
-#endif
+// static uint8_t xfer_buf[TERM_XFER_CHUNK];
+// #endif
 
 void term_write(struct term_t *term, uint64_t buf, uint64_t count)
 {
@@ -315,39 +315,39 @@ void term_write(struct term_t *term, uint64_t buf, uint64_t count)
             return;
     }
 
-    bool native = false;
-#if defined(__x86_64__) || defined(__aarch64__)
-    native = true;
-#endif
+//     bool native = false;
+// #if defined(__x86_64__) || defined(__aarch64__)
+//     native = true;
+// #endif
 
-    if (!term->runtime || native)
+//    if (!term->runtime || native)
+    if (term->runtime == false)
     {
         const char *s = (const char*)(buf);
         for (size_t i = 0; i < count; i++)
             term_putchar(term, s[i]);
     }
-    else
-    {
-    // TODO: Is this necessary?
-#if !defined(__x86_64__) && !defined(__aarch64__)
-        while (count != 0)
-        {
-            uint64_t chunk;
-            if (count > TERM_XFER_CHUNK)
-                chunk = TERM_XFER_CHUNK;
-            else
-                chunk = count;
+//     else
+//     {
+// #if !defined(__x86_64__) && !defined(__aarch64__)
+//         while (count != 0)
+//         {
+//             uint64_t chunk;
+//             if (count > TERM_XFER_CHUNK)
+//                 chunk = TERM_XFER_CHUNK;
+//             else
+//                 chunk = count;
 
-            memcpy(xfer_buf, (void*)(buf), chunk);
+//             memcpy(xfer_buf, (void*)(buf), chunk);
 
-            for (size_t i = 0; i < chunk; i++)
-                term_putchar(term, xfer_buf[i]);
+//             for (size_t i = 0; i < chunk; i++)
+//                 term_putchar(term, xfer_buf[i]);
 
-            count -= chunk;
-            buf += chunk;
-        }
-#endif
-    }
+//             count -= chunk;
+//             buf += chunk;
+//         }
+// #endif
+//     }
 
     if (term->autoflush)
         term_double_buffer_flush(term);
