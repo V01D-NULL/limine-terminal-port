@@ -80,7 +80,7 @@ struct style_t style = {
    0xA0000000, // Background colour
    0xFFFFFF, // Foreground colour
    64, // Terminal margin
-   0 // Terminal margin gradient
+   4 // Terminal margin gradient
 };
 
 struct image_t image;

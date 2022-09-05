@@ -484,6 +484,16 @@ void gterm_set_text_bg_bright(struct gterm_t *gterm, size_t bg)
     gterm->context.text_bg = gterm->ansi_bright_colours[bg];
 }
 
+void gterm_set_text_fg_rgb(struct gterm_t *gterm, uint32_t fg)
+{
+    gterm->context.text_fg = fg;
+}
+
+void gterm_set_text_bg_rgb(struct gterm_t *gterm, uint32_t bg)
+{
+    gterm->context.text_bg = bg;
+}
+
 void gterm_set_text_fg_default(struct gterm_t *gterm)
 {
     gterm->context.text_fg = gterm->default_fg;

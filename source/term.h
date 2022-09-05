@@ -185,6 +185,8 @@ void term_set_text_fg(struct term_t *term, size_t fg);
 void term_set_text_bg(struct term_t *term, size_t bg);
 void term_set_text_fg_bright(struct term_t *term, size_t fg);
 void term_set_text_bg_bright(struct term_t *term, size_t bg);
+void term_set_text_fg_rgb(struct term_t *term, uint32_t fg);
+void term_set_text_bg_rgb(struct term_t *term, uint32_t bg);
 void term_set_text_fg_default(struct term_t *term);
 void term_set_text_bg_default(struct term_t *term);
 bool term_scroll_disable(struct term_t *term);

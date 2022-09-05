@@ -105,6 +105,8 @@ void gterm_set_text_fg(struct gterm_t *gterm, size_t fg);
 void gterm_set_text_bg(struct gterm_t *gterm, size_t bg);
 void gterm_set_text_fg_bright(struct gterm_t *gterm, size_t fg);
 void gterm_set_text_bg_bright(struct gterm_t *gterm, size_t bg);
+void gterm_set_text_fg_rgb(struct gterm_t *gterm, uint32_t fg);
+void gterm_set_text_bg_rgb(struct gterm_t *gterm, uint32_t bg);
 void gterm_set_text_fg_default(struct gterm_t *gterm);
 void gterm_set_text_bg_default(struct gterm_t *gterm);
 void gterm_double_buffer_flush(struct gterm_t *gterm);
