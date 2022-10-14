@@ -19,7 +19,7 @@ Please let us know if any issues arise, thank you!
 
 ## Usage
 
-1. First off, choose a font from fonts/ folder or create your own and load it in your os (link it directly to the kernel, load it from filesystem, as a module, etc)
+1. First off, choose a font from fonts/ folder (binary or c array) or create your own and load it in your os (link it directly to the kernel, convert it to an array, load it from filesystem, as a module, etc)
 
 2. To initialize the terminal, include `term.h` and provide some basic functions declared in the header file (Example shown below)
 
@@ -66,7 +66,7 @@ struct framebuffer_t frm = {
 };
 
 struct font_t font = {
-   font_address, // Address of font file
+   font_address, // Address of the font
    8, // Font width
    16, // Font height
    1, // Character spacing
@@ -77,10 +77,10 @@ struct font_t font = {
 struct style_t style = {
    DEFAULT_ANSI_COLOURS, // Default terminal palette
    DEFAULT_ANSI_BRIGHT_COLOURS, // Default terminal bright palette
-   0xA0000000, // Background colour
-   0xFFFFFF, // Foreground colour
-   64, // Terminal margin
-   4 // Terminal margin gradient
+   DEFAULT_BACKGROUND, // Background colour
+   DEFAULT_FIREGROUND, // Foreground colour
+   DEFAULT_MARGIN, // Terminal margin
+   DEFAULT_MARGIN_GRADIENT // Terminal margin gradient
 };
 
 struct image_t image;
