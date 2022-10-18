@@ -42,20 +42,20 @@ struct gterm_t
 
     struct term_t *term;
 
-    size_t vga_font_width;
-    size_t vga_font_height;
+    size_t font_width;
+    size_t font_height;
     size_t font_bytes;
     size_t glyph_width;
     size_t glyph_height;
 
-    size_t vga_font_scale_x;
-    size_t vga_font_scale_y;
+    size_t font_scale_x;
+    size_t font_scale_y;
 
     size_t offset_x, offset_y;
 
-    uint8_t *vga_font_bits;
-    size_t vga_font_bool_size;
-    bool *vga_font_bool;
+    uint8_t *font_bits;
+    size_t font_bool_size;
+    bool *font_bool;
 
     uint32_t ansi_colours[8];
     uint32_t ansi_bright_colours[8];

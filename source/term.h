@@ -12,8 +12,7 @@ extern void free_mem(void *ptr, size_t size);
 extern void *memcpy(void *dest, const void *src, size_t len);
 extern void *memset(void *dest, int ch, size_t n);
 
-#define VGA_FONT_MAX 16384
-#define VGA_FONT_GLYPHS 256
+#define FONT_GLYPHS 256
 
 #define TERM_TABSIZE 8
 #define MAX_ESC_VALUES 16
@@ -35,7 +34,8 @@ extern void *memset(void *dest, int ch, size_t n);
 #define DEFAULT_MARGIN 64
 #define DEFAULT_MARGIN_GRADIENT 4
 
-typedef void (*callback_t)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
+struct term_t;
+typedef void (*callback_t)(struct term_t*, uint64_t, uint64_t, uint64_t, uint64_t);
 typedef size_t fixedp6;
 
 static inline size_t fixedp6_to_int(fixedp6 value)
@@ -150,15 +150,15 @@ struct term_t
 
     enum term_type term_backend;
     size_t rows, cols;
-    bool runtime;
+    bool in_bootloader;
 
-    uint64_t arg;
+    size_t tab_size;
     bool autoflush;
 
     callback_t callback;
 };
 
-void term_init(struct term_t *term, callback_t callback, bool bios);
+void term_init(struct term_t *term, callback_t callback, bool bios, size_t tabsize);
 void term_deinit(struct term_t *term);
 void term_reinit(struct term_t *term);
 void term_vbe(struct term_t *term, struct framebuffer_t frm, struct font_t font, struct style_t style, struct background_t back);
@@ -167,14 +167,14 @@ void term_textmode(struct term_t *term);
 #endif
 void term_notready(struct term_t *term);
 void term_putchar(struct term_t *term, uint8_t c);
-void term_write(struct term_t *term, uint64_t buf, uint64_t count);
-void term_print(struct term_t *term, const char *str);
+void term_write(struct term_t *term, const char *buf, size_t count);
 void term_sgr(struct term_t *term);
 void term_dec_private_parse(struct term_t *term, uint8_t c);
 void term_linux_private_parse(struct term_t *term);
 void term_mode_toggle(struct term_t *term, uint8_t c);
 void term_control_sequence_parse(struct term_t *term, uint8_t c);
 void term_escape_parse(struct term_t *term, uint8_t c);
+
 void term_raw_putchar(struct term_t *term, uint8_t c);
 void term_clear(struct term_t *term, bool move);
 void term_enable_cursor(struct term_t *term);

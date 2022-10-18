@@ -6,9 +6,9 @@
 
 struct cppterm_t : term_t
 {
-    void init(callback_t callback, bool bios)
+    void init(callback_t callback, bool bios, size_t tabsize = TERM_TABSIZE)
     {
-        term_init(this, callback, bios);
+        term_init(this, callback, bios, tabsize);
     }
 
     void reinit()
@@ -43,14 +43,9 @@ struct cppterm_t : term_t
         term_putchar(this, c);
     }
 
-    void write(uint64_t buf, uint64_t count)
+    void write(const char *buf, uint64_t count)
     {
         term_write(this, buf, count);
-    }
-
-    void print(const char *str)
-    {
-        term_print(this, str);
     }
 
     void raw_putchar(uint8_t c)

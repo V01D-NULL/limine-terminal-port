@@ -35,15 +35,15 @@ static const uint32_t col256[] = {
     0xa8a8a8, 0xb2b2b2, 0xbcbcbc, 0xc6c6c6, 0xd0d0d0, 0xdadada, 0xe4e4e4, 0xeeeeee
 };
 
-void term_init(struct term_t *term, callback_t callback, bool bios)
+void term_init(struct term_t *term, callback_t callback, bool bios, size_t tabsize)
 {
     if (term->initialised == true)
         return;
 
     term->callback = callback;
     term->bios = bios;
+    term->tab_size = tabsize;
     term->term_backend = NOT_READY;
-    term->arg = (uint64_t)term;
 
     term->gterm = alloc_mem(sizeof(struct gterm_t));
 #if defined(__i386__) || defined(__x86_64__)
@@ -61,6 +61,7 @@ void term_deinit(struct term_t *term)
 
     if (term->term_backend == VBE && term->gterm)
         gterm_deinit(term->gterm);
+
     term_notready(term);
 }
 
@@ -69,7 +70,6 @@ void term_reinit(struct term_t *term)
     if (term->initialised == false)
         return;
 
-    term->context.escape_offset = 0;
     term->context.control_sequence = false;
     term->context.csi = false;
     term->context.escape = false;
@@ -78,17 +78,19 @@ void term_reinit(struct term_t *term)
     term->context.bold = false;
     term->context.reverse_video = false;
     term->context.dec_private = false;
+    term->context.insert_mode = false;
+    term->context.g_select = 0;
+    term->context.charsets[0] = CHARSET_DEFAULT;
+    term->context.charsets[1] = CHARSET_DEC_SPECIAL;
+    term->context.current_charset = 0;
+    term->context.escape_offset = 0;
     term->context.esc_values_i = 0;
     term->context.saved_cursor_x = 0;
     term->context.saved_cursor_y = 0;
     term->context.current_primary = (size_t)(-1);
-    term->context.insert_mode = false;
     term->context.scroll_top_margin = 0;
     term->context.scroll_bottom_margin = term->rows;
-    term->context.current_charset = 0;
-    term->context.g_select = 0;
-    term->context.charsets[0] = CHARSET_DEFAULT;
-    term->context.charsets[1] = CHARSET_DEC_SPECIAL;
+
     term->autoflush = true;
 }
 
@@ -175,7 +177,7 @@ void term_putchar(struct term_t *term, uint8_t c)
     if (term->initialised == false)
         return;
 
-    if (term->context.discard_next || (term->runtime == true && (c == 0x18 || c == 0x1A)))
+    if (term->context.discard_next || (c == 0x18 || c == 0x1A))
     {
         term->context.discard_next = false;
         term->context.escape = false;
@@ -223,12 +225,12 @@ void term_putchar(struct term_t *term, uint8_t c)
             term->context.escape = true;
             return;
         case '\t':
-            if ((x / TERM_TABSIZE + 1) >= term->cols)
+            if ((x / term->tab_size + 1) >= term->cols)
             {
                 term_set_cursor_pos(term, term->cols - 1, y);
                 return;
             }
-            term_set_cursor_pos(term, (x / TERM_TABSIZE + 1) * TERM_TABSIZE, y);
+            term_set_cursor_pos(term, (x / term->tab_size + 1) * term->tab_size, y);
             return;
         case 0x0b:
         case 0x0c:
@@ -248,12 +250,7 @@ void term_putchar(struct term_t *term, uint8_t c)
             return;
         case '\a':
             if (term->callback)
-            {
-                if (term->arg != 0)
-                    term->callback(term->arg, TERM_CB_BELL, 0, 0, 0);
-                else
-                    term->callback(TERM_CB_BELL, 0, 0, 0, 0);
-            }
+                term->callback(term, TERM_CB_BELL, 0, 0, 0);
             return;
         case 14:
             term->context.current_charset = 1;
@@ -285,84 +282,16 @@ void term_putchar(struct term_t *term, uint8_t c)
     term_raw_putchar(term, c);
 }
 
-// #if !defined(__x86_64__) && !defined(__aarch64__)
-// #define TERM_XFER_CHUNK 8192
-
-// static uint8_t xfer_buf[TERM_XFER_CHUNK];
-// #endif
-
-void term_write(struct term_t *term, uint64_t buf, uint64_t count)
+void term_write(struct term_t *term, const char *buf, size_t count)
 {
     if (term->initialised == false || term->term_backend == NOT_READY)
         return;
 
-    switch (count)
-    {
-        case TERM_CTX_SIZE:
-        {
-            uint64_t ret = term_context_size(term);
-            memcpy((void*)(buf), &ret, sizeof(uint64_t));
-            return;
-        }
-        case TERM_CTX_SAVE:
-            term_context_save(term, buf);
-            return;
-        case TERM_CTX_RESTORE:
-            term_context_restore(term, buf);
-            return;
-        case TERM_FULL_REFRESH:
-            term_full_refresh(term);
-            return;
-    }
-
-//     bool native = false;
-// #if defined(__x86_64__) || defined(__aarch64__)
-//     native = true;
-// #endif
-
-//    if (!term->runtime || native)
-    if (term->runtime == false)
-    {
-        const char *s = (const char*)(buf);
-        for (size_t i = 0; i < count; i++)
-            term_putchar(term, s[i]);
-    }
-//     else
-//     {
-// #if !defined(__x86_64__) && !defined(__aarch64__)
-//         while (count != 0)
-//         {
-//             uint64_t chunk;
-//             if (count > TERM_XFER_CHUNK)
-//                 chunk = TERM_XFER_CHUNK;
-//             else
-//                 chunk = count;
-
-//             memcpy(xfer_buf, (void*)(buf), chunk);
-
-//             for (size_t i = 0; i < chunk; i++)
-//                 term_putchar(term, xfer_buf[i]);
-
-//             count -= chunk;
-//             buf += chunk;
-//         }
-// #endif
-//     }
+    for (size_t i = 0; i < count; i++)
+        term_putchar(term, buf[i]);
 
     if (term->autoflush)
         term_double_buffer_flush(term);
-}
-
-void term_print(struct term_t *term, const char *str)
-{
-    if (str == NULL)
-        return;
-
-    size_t length = 0;
-    while(str[length])
-        length++;
-
-    term_write(term, (uint64_t)str, length);
 }
 
 void term_sgr(struct term_t *term)
@@ -587,12 +516,7 @@ void term_dec_private_parse(struct term_t *term, uint8_t c)
     }
 
     if (term->callback)
-    {
-        if (term->arg != 0)
-            term->callback(term->arg, TERM_CB_DEC, term->context.esc_values_i, (uintptr_t)(term->context.esc_values), c);
-        else
-            term->callback(TERM_CB_DEC, term->context.esc_values_i, (uintptr_t)(term->context.esc_values), c, 0);
-    }
+        term->callback(term, TERM_CB_DEC, term->context.esc_values_i, (uintptr_t)(term->context.esc_values), c);
 }
 
 void term_linux_private_parse(struct term_t *term)
@@ -601,12 +525,7 @@ void term_linux_private_parse(struct term_t *term)
         return;
 
     if (term->callback)
-    {
-        if (term->arg != 0)
-            term->callback(term->arg, TERM_CB_LINUX, term->context.esc_values_i, (uintptr_t)(term->context.esc_values), 0);
-        else
-            term->callback(TERM_CB_LINUX, term->context.esc_values_i, (uintptr_t)(term->context.esc_values), 0, 0);
-    }
+        term->callback(term, TERM_CB_LINUX, term->context.esc_values_i, (uintptr_t)(term->context.esc_values), 0);
 }
 
 void term_mode_toggle(struct term_t *term, uint8_t c)
@@ -635,12 +554,7 @@ void term_mode_toggle(struct term_t *term, uint8_t c)
     }
 
     if (term->callback)
-    {
-        if (term->arg != 0)
-            term->callback(term->arg, TERM_CB_MODE, term->context.esc_values_i, (uintptr_t)(term->context.esc_values), c);
-        else
-            term->callback(TERM_CB_MODE, term->context.esc_values_i, (uintptr_t)(term->context.esc_values), c, 0);
-    }
+        term->callback(term, TERM_CB_MODE, term->context.esc_values_i, (uintptr_t)(term->context.esc_values), c);
 }
 
 void term_control_sequence_parse(struct term_t *term, uint8_t c)
@@ -762,12 +676,7 @@ void term_control_sequence_parse(struct term_t *term, uint8_t c)
             break;
         case 'c':
             if (term->callback)
-            {
-                if (term->arg != 0)
-                    term->callback(term->arg, TERM_CB_PRIVATE_ID, 0, 0, 0);
-                else
-                    term->callback(TERM_CB_PRIVATE_ID, 0, 0, 0, 0);
-            }
+                term->callback(term, TERM_CB_PRIVATE_ID, 0, 0, 0);
             break;
         case 'd':
             term->context.esc_values[0] -= 1;
@@ -804,32 +713,17 @@ void term_control_sequence_parse(struct term_t *term, uint8_t c)
             {
                 case 5:
                     if (term->callback)
-                    {
-                        if (term->arg != 0)
-                            term->callback(term->arg, TERM_CB_STATUS_REPORT, 0, 0, 0);
-                        else
-                            term->callback(TERM_CB_STATUS_REPORT, 0, 0, 0, 0);
-                    }
+                        term->callback(term, TERM_CB_STATUS_REPORT, 0, 0, 0);
                     break;
                 case 6:
                     if (term->callback)
-                    {
-                        if (term->arg != 0)
-                            term->callback(term->arg, TERM_CB_POS_REPORT, x + 1, y + 1, 0);
-                        else
-                            term->callback(TERM_CB_POS_REPORT, x + 1, y + 1, 0, 0);
-                    }
+                        term->callback(term, TERM_CB_POS_REPORT, x + 1, y + 1, 0);
                     break;
             }
             break;
         case 'q':
             if (term->callback)
-            {
-                if (term->arg != 0)
-                    term->callback(term->arg, TERM_CB_KBD_LEDS, term->context.esc_values[0], 0, 0);
-                else
-                    term->callback(TERM_CB_KBD_LEDS, term->context.esc_values[0], 0, 0, 0);
-            }
+                term->callback(term, TERM_CB_KBD_LEDS, term->context.esc_values[0], 0, 0);
             break;
         case 'J':
             switch (term->context.esc_values[0])
@@ -1022,20 +916,13 @@ is_csi:
             break;
         case 'Z':
             if (term->callback)
-            {
-                if (term->arg != 0)
-                    term->callback(term->arg, TERM_CB_PRIVATE_ID, 0, 0, 0);
-                else
-                    term->callback(TERM_CB_PRIVATE_ID, 0, 0, 0, 0);
-            }
+                term->callback(term, TERM_CB_PRIVATE_ID, 0, 0, 0);
             break;
         case '(':
         case ')':
             term->context.g_select = c - '\'';
             break;
         case '\e':
-            if (term->runtime == false)
-                term_raw_putchar(term, c);
             break;
     }
 

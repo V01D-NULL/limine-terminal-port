@@ -14,8 +14,9 @@ You should be able to include it into your kernel and use it just fine.
 Please let us know if any issues arise, thank you!
 
 ## Features
-* Every feature that Limine terminal has is supported
-* Multiple terminals support
+* Everything that Limine terminal supports
+* Multiple terminals
+* Meson support
 
 ## Usage
 
@@ -53,9 +54,9 @@ void *memset(void *dest, int ch, size_t n)
    // Memset
 }
 
-void callback(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)
+void callback(term_t*, uint64_t, uint64_t, uint64_t, uint64_t)
 {
-   handleCallback();
+    // Handle callback
 }
 
 struct framebuffer_t frm = {
@@ -70,8 +71,8 @@ struct font_t font = {
    8, // Font width
    16, // Font height
    1, // Character spacing
-   0, // Font scaling x
-   0 // Font scaling y
+   1, // Font scaling x
+   1 // Font scaling y
 };
 
 struct style_t style = {
@@ -88,20 +89,20 @@ image_open(&image, bmpBackgroundAddress, size);
 struct background_t back = {
    &image, // Background. Set to NULL to disable background
    STRETCHED, // STRETCHED, CENTERED or TILED
-   0x00000000 // Terminal backdrop colour
+   DEFAULT_BACKGROUND // Terminal backdrop colour
 };
 
 struct term_t term;
-term_init(&term, callback, bootedInBiosMode);
+term_init(&term, callback, bootedInBiosMode, TERM_TABSIZE);
 
 // VBE mode
 // In VBE mode you can create more terminals for different framebuffers
 term_vbe(&term, frm, font, style, back);
-term_print(&term, "Hello, World!");
+term_write(&term, "Hello, World!", 13);
 
 // Text mode
 term_textmode(&term);
-term_print(&term, "Hello, World!");
+term_write(&term, "Hello, World!", 13);
 ```
 
 Based on: https://github.com/limine-bootloader/limine
