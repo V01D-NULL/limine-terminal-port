@@ -1,12 +1,12 @@
 # Port of the Limine bootloader terminal
 
-Normally this terminal is provided by the Limine bootloader and can (and should) be used by the kernel during early boot.
+Normally this terminal is provided by the Limine bootloader and can be used by the kernel during early boot.
 
 It's an extremely fast with a complete "terminfo"/vt100 implementation. There really isn't a reason not to use this terminal.
 
 The only issue here is that it's merely an *early boot console*, and it's located in conventional, lower-half memory.
 
-Once you get to userspace you'll find it very annoying to try and map memory *around* the it considering that terminal shouldn't be in lower-half memory in the first place!
+Once you get to userspace you'll find it very annoying to try and map memory *around* it considering that terminal shouldn't be in lower-half memory in the first place!
 
 That's what this port is for.
 You should be able to include it into your kernel and use it just fine.
