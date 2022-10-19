@@ -16,7 +16,6 @@ Please let us know if any issues arise, thank you!
 ## Features
 * Everything that Limine terminal supports
 * Multiple terminals
-* Meson support
 
 ## Usage
 
