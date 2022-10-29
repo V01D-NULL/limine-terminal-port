@@ -220,7 +220,7 @@ void term_putchar(struct term_t *term, uint8_t c)
         case 0x9B:
             term->context.csi = true;
             // FALLTHRU
-        case '\e':
+        case 0x1B:
             term->context.escape_offset = 0;
             term->context.escape = true;
             return;
@@ -922,7 +922,7 @@ is_csi:
         case ')':
             term->context.g_select = c - '\'';
             break;
-        case '\e':
+        case 0x1B:
             break;
     }
 

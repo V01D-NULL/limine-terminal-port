@@ -17,11 +17,6 @@ extern void *memset(void *dest, int ch, size_t n);
 #define TERM_TABSIZE 8
 #define MAX_ESC_VALUES 16
 
-#define TERM_CTX_SIZE (uint64_t)(-1)
-#define TERM_CTX_SAVE (uint64_t)(-2)
-#define TERM_CTX_RESTORE (uint64_t)(-3)
-#define TERM_FULL_REFRESH (uint64_t)(-4)
-
 #define CHARSET_DEFAULT 0
 #define CHARSET_DEC_SPECIAL 1
 
@@ -150,7 +145,6 @@ struct term_t
 
     enum term_type term_backend;
     size_t rows, cols;
-    bool in_bootloader;
 
     size_t tab_size;
     bool autoflush;
