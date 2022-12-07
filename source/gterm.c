@@ -361,7 +361,7 @@ void gterm_scroll_enable(struct gterm_t *gterm)
 
 void gterm_revscroll(struct gterm_t *gterm)
 {
-    for (size_t i = (gterm->term->context.scroll_bottom_margin - 1) * gterm->cols - 1; ; i--)
+    for (size_t i = (gterm->term->context.scroll_bottom_margin - 1) * gterm->cols - 1; i > (gterm->term->context.scroll_top_margin + 1) * gterm->cols; i--)
     {
         struct gterm_char *c;
         struct gterm_queue_item *q = gterm->map[i];
@@ -371,8 +371,6 @@ void gterm_revscroll(struct gterm_t *gterm)
             c = &gterm->grid[i];
 
         push_to_queue(gterm, c, (i + gterm->cols) % gterm->cols, (i + gterm->cols) / gterm->cols);
-        if (i == gterm->term->context.scroll_top_margin * gterm->cols)
-            break;
     }
 
     struct gterm_char empty;
@@ -451,8 +449,8 @@ void gterm_set_cursor_pos(struct gterm_t *gterm, size_t x, size_t y)
 
 void gterm_get_cursor_pos(struct gterm_t *gterm, size_t *x, size_t *y)
 {
-    *x = gterm->context.cursor_x;
-    *y = gterm->context.cursor_y;
+    *x = gterm->context.cursor_x >= gterm->cols ? gterm->cols - 1 : gterm->context.cursor_x;
+    *y = gterm->context.cursor_y >= gterm->rows ? gterm->rows - 1 : gterm->context.cursor_y;
 }
 
 void gterm_move_character(struct gterm_t *gterm, size_t new_x, size_t new_y, size_t old_x, size_t old_y)
@@ -514,7 +512,11 @@ void gterm_set_text_bg_default(struct gterm_t *gterm)
 
 static void draw_cursor(struct gterm_t *gterm)
 {
+    if (gterm->context.cursor_x >= gterm->cols || gterm->context.cursor_y >= gterm->rows)
+        return;
+
     size_t i = gterm->context.cursor_x + gterm->context.cursor_y * gterm->cols;
+
     struct gterm_char c;
     struct gterm_queue_item *q = gterm->map[i];
     if (q != NULL)
@@ -556,7 +558,8 @@ void gterm_double_buffer_flush(struct gterm_t *gterm)
     }
 
     if ((gterm->old_cursor_x != gterm->context.cursor_x || gterm->old_cursor_y != gterm->context.cursor_y) || gterm->context.cursor_status == false)
-        plot_char(gterm, &gterm->grid[gterm->old_cursor_x + gterm->old_cursor_y * gterm->cols], gterm->old_cursor_x, gterm->old_cursor_y);
+        if (gterm->old_cursor_x < gterm->cols && gterm->old_cursor_y < gterm->rows)
+            plot_char(gterm, &gterm->grid[gterm->old_cursor_x + gterm->old_cursor_y * gterm->cols], gterm->old_cursor_x, gterm->old_cursor_y);
 
     gterm->old_cursor_x = gterm->context.cursor_x;
     gterm->old_cursor_y = gterm->context.cursor_y;
@@ -571,15 +574,15 @@ void gterm_putchar(struct gterm_t *gterm, uint8_t c)
     ch.fg = gterm->context.text_fg;
     ch.bg = gterm->context.text_bg;
     push_to_queue(gterm, &ch, gterm->context.cursor_x++, gterm->context.cursor_y);
-    if (gterm->context.cursor_x == gterm->cols && (gterm->context.cursor_y < gterm->term->context.scroll_bottom_margin - 1 || gterm->context.scroll_enabled))
+    if (gterm->context.cursor_x >= gterm->cols && (gterm->context.cursor_y < gterm->term->context.scroll_bottom_margin - 1 || gterm->context.scroll_enabled))
     {
         gterm->context.cursor_x = 0;
         gterm->context.cursor_y++;
     }
 
-    if (gterm->context.cursor_y == gterm->term->context.scroll_bottom_margin)
+    if (gterm->context.cursor_y >= gterm->term->context.scroll_bottom_margin)
     {
-        gterm->context.cursor_y--;
+        gterm->context.cursor_y = gterm->term->context.scroll_bottom_margin - 1;
         gterm_scroll(gterm);
     }
 }
