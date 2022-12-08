@@ -178,8 +178,8 @@ uint8_t term_dec_special_to_cp437(uint8_t c)
 
 struct interval
 {
-    int first;
-    int last;
+    wchar_t first;
+    wchar_t last;
 };
 
 /* auxiliary function for binary search in interval table */
