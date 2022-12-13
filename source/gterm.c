@@ -361,8 +361,11 @@ void gterm_scroll_enable(struct gterm_t *gterm)
 
 void gterm_revscroll(struct gterm_t *gterm)
 {
-    for (size_t i = (gterm->term->context.scroll_bottom_margin - 1) * gterm->cols - 1; i > (gterm->term->context.scroll_top_margin + 1) * gterm->cols; i--)
+    for (size_t i = (gterm->term->context.scroll_bottom_margin - 1) * gterm->cols - 1; i >= gterm->term->context.scroll_top_margin * gterm->cols; i--)
     {
+        if (i == (size_t)-1)
+            break;
+
         struct gterm_char *c;
         struct gterm_queue_item *q = gterm->map[i];
         if (q != NULL)
