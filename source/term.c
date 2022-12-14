@@ -1041,6 +1041,18 @@ void term_control_sequence_parse(struct term_t *term, uint8_t c)
 
             term_set_cursor_pos(term, term->context.esc_values[1], term->context.esc_values[0]);
             break;
+        case 'M':
+            for (size_t i = 0; i < term->context.esc_values[0]; i++)
+                term_scroll(term);
+            break;
+        case 'L': {
+            size_t old_scroll_top_margin = term->context.scroll_top_margin;
+            term->context.scroll_top_margin = y;
+            for (size_t i = 0; i < term->context.esc_values[0]; i++)
+                term_revscroll(term);
+            term->context.scroll_top_margin = old_scroll_top_margin;
+            break;
+        }
         case 'n':
             switch (term->context.esc_values[0])
             {

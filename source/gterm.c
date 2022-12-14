@@ -381,8 +381,8 @@ void gterm_revscroll(struct gterm_t *gterm)
     empty.fg = gterm->context.text_fg;
     empty.bg = gterm->context.text_bg;
 
-    for (size_t i = gterm->term->context.scroll_top_margin * gterm->cols; i < (gterm->term->context.scroll_top_margin + 1) * gterm->cols; i++)
-        push_to_queue(gterm, &empty, i % gterm->cols, i / gterm->cols);
+    for (size_t i = 0; i < gterm->cols; i++)
+        push_to_queue(gterm, &empty, i, gterm->term->context.scroll_top_margin);
 }
 
 void gterm_scroll(struct gterm_t *gterm)
@@ -402,8 +402,9 @@ void gterm_scroll(struct gterm_t *gterm)
     empty.c  = ' ';
     empty.fg = gterm->context.text_fg;
     empty.bg = gterm->context.text_bg;
-    for (size_t i = (gterm->term->context.scroll_bottom_margin - 1) * gterm->cols; i < gterm->term->context.scroll_bottom_margin * gterm->cols; i++)
-        push_to_queue(gterm, &empty, i % gterm->cols, i / gterm->cols);
+
+    for (size_t i = 0; i < gterm->cols; i++)
+        push_to_queue(gterm, &empty, i, gterm->term->context.scroll_bottom_margin - 1);
 }
 
 void gterm_clear(struct gterm_t *gterm, bool move)
