@@ -582,12 +582,13 @@ void gterm_putchar(struct gterm_t *gterm, uint8_t c)
     {
         gterm->context.cursor_x = 0;
         gterm->context.cursor_y++;
-    }
-
-    if (gterm->context.cursor_y >= gterm->term->context.scroll_bottom_margin)
-    {
-        gterm->context.cursor_y = gterm->term->context.scroll_bottom_margin - 1;
-        gterm_scroll(gterm);
+        if (gterm->context.cursor_y == gterm->term->context.scroll_bottom_margin)
+        {
+            gterm->context.cursor_y--;
+            gterm_scroll(gterm);
+        }
+        if (gterm->context.cursor_y >= gterm->cols)
+            gterm->context.cursor_y = gterm->cols - 1;
     }
 }
 

@@ -1030,8 +1030,11 @@ void term_control_sequence_parse(struct term_t *term, uint8_t c)
             break;
         case 'H':
         case 'f':
-            term->context.esc_values[0] -= 1;
-            term->context.esc_values[1] -= 1;
+            if (term->context.esc_values[0] != 0)
+                term->context.esc_values[0]--;
+
+            if (term->context.esc_values[1] != 0)
+                term->context.esc_values[1]--;
 
             if (term->context.esc_values[1] >= term->cols)
                 term->context.esc_values[1] = term->cols - 1;
@@ -1164,6 +1167,11 @@ void term_control_sequence_parse(struct term_t *term, uint8_t c)
             }
             break;
         case 'r':
+            if (term->context.esc_values[0] == 0)
+                term->context.esc_values[0] = 1;
+            if (term->context.esc_values[1] == 0)
+                term->context.esc_values[1] = 1;
+
             term->context.scroll_top_margin = 0;
             term->context.scroll_bottom_margin = term->rows;
             if (term->context.esc_values_i > 0)
